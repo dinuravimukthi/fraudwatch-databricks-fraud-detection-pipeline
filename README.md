@@ -17,36 +17,7 @@ Upon detection, automated email notifications are dispatched to affected custome
 
 ## Architecture
 
-```
-Kafka Topic (transactions)
-        │
-        ▼
- ┌─────────────┐      Auto Loader (watchlist CSV)
- │   BRONZE    │◄─────────────────────────────────┐
- │ transactions│      fraudwatch.bronze.watchlist  │
- │   bronze    │                                   │
- └──────┬──────┘                                   │
-        │                                          │
-        ▼                                          ▼
- ┌─────────────┐                          ┌────────────────┐
- │   SILVER    │                          │     SILVER     │
- │ transactions│                          │   watchlist    │
- │   silver    │                          │    silver      │
- └──────┬──────┘                          └───────┬────────┘
-        │                                         │
-        │         ┌───────────────────────────────┘
-        │         │
-        ▼         ▼
- ┌─────────────────────┐     ┌──────────────────────────────────────┐
- │      GOLD           │     │              GOLD                    │
- │ transaction_alerts  │     │ fraud_card_alerts                    │
- │ (limit exceeded)    │     │ (watchlist match)                    │
- └────────┬────────────┘     └──────────────┬───────────────────────┘
-          │                                 │
-          ▼                                 ▼
-  Email Notifier                    Email Notifier
- (limit_exceeded)                 (fraud_card_alert)
-```
+![architecture.png](./images/architecture.png)
 
 > **Batch path:** Customer data (`fraudwatch.silver.customers`) is produced separately via `fraudwatch_batch_processing` and is used as a static dimension in the Gold layer joins.
 
